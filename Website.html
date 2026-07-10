@@ -1,0 +1,911 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>SIM · Security Incident Mapping — Your Safety Is Our Priority</title>
+<meta name="description" content="Report security incidents and stay informed about safety around campus with the Security Incident Mapping platform." />
+<style>
+/* ============================================
+   SIM — Security Incident Mapping (single-file build)
+   ============================================ */
+:root{
+  --primary:#c1121f;--primary-dark:#8a0d16;--primary-glow:rgba(193,18,31,.45);
+  --black:#111;--bg:#181818;--card:#232323;--card-hover:#2a2a2a;
+  --border:rgba(193,18,31,.25);--border-strong:rgba(193,18,31,.55);
+  --text:#fff;--muted:#bdbdbd;--success:#22c55e;--warning:#f59e0b;--danger:#ef4444;
+  --radius:14px;--shadow:0 10px 30px rgba(0,0,0,.5);--shadow-red:0 10px 30px -10px var(--primary-glow);
+  --transition:.25s ease;--font:"Inter","Segoe UI",system-ui,-apple-system,sans-serif;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{font-family:var(--font);background:var(--bg);color:var(--text);line-height:1.6;min-height:100vh;display:flex;flex-direction:column;overflow-x:hidden}
+img{max-width:100%;display:block}
+a{color:inherit;text-decoration:none}
+button{font-family:inherit;cursor:pointer;border:none;background:none;color:inherit}
+.container{width:100%;max-width:1200px;margin:0 auto;padding:0 1.25rem}
+
+/* PAGES */
+.page{display:none;animation:fadeIn .4s ease}
+.page.active{display:block}
+
+/* NAV */
+.navbar{position:sticky;top:0;z-index:100;background:rgba(17,17,17,.92);backdrop-filter:blur(12px);border-bottom:1px solid var(--border)}
+.nav-inner{display:flex;align-items:center;justify-content:space-between;padding:.9rem 1.25rem;max-width:1300px;margin:0 auto}
+.logo{display:flex;align-items:center;gap:.6rem;font-weight:800;font-size:1.25rem;letter-spacing:.5px;cursor:pointer}
+.logo-mark{width:34px;height:34px;display:grid;place-items:center;background:var(--primary);color:#fff;border-radius:8px;box-shadow:0 0 20px var(--primary-glow);font-size:1rem}
+.logo span{color:var(--primary)}
+.nav-links{display:flex;gap:.4rem;list-style:none;align-items:center}
+.nav-links a{padding:.55rem .9rem;border-radius:8px;font-size:.92rem;color:var(--muted);transition:var(--transition);position:relative;cursor:pointer}
+.nav-links a:hover{color:#fff;background:rgba(255,255,255,.04)}
+.nav-links a.active{color:#fff;background:rgba(193,18,31,.15)}
+.nav-links a.active::after{content:"";position:absolute;left:20%;right:20%;bottom:4px;height:2px;background:var(--primary);border-radius:2px}
+.nav-cta{display:flex;gap:.5rem}
+.hamburger{display:none;width:42px;height:42px;border-radius:8px;background:rgba(255,255,255,.05);border:1px solid var(--border);flex-direction:column;align-items:center;justify-content:center;gap:4px}
+.hamburger span{width:20px;height:2px;background:#fff;border-radius:2px;transition:var(--transition)}
+.hamburger.open span:nth-child(1){transform:translateY(6px) rotate(45deg)}
+.hamburger.open span:nth-child(2){opacity:0}
+.hamburger.open span:nth-child(3){transform:translateY(-6px) rotate(-45deg)}
+
+/* BUTTONS */
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:.5rem;padding:.75rem 1.4rem;border-radius:10px;font-weight:600;font-size:.95rem;transition:var(--transition);border:1px solid transparent;white-space:nowrap}
+.btn-primary{background:var(--primary);color:#fff;box-shadow:0 4px 15px -5px var(--primary-glow)}
+.btn-primary:hover{background:var(--primary-dark);box-shadow:0 8px 25px -5px var(--primary-glow);transform:translateY(-2px)}
+.btn-outline{border-color:var(--border-strong);color:#fff;background:rgba(255,255,255,.02)}
+.btn-outline:hover{background:rgba(193,18,31,.1);border-color:var(--primary)}
+.btn-ghost{color:var(--muted)}
+.btn-ghost:hover{color:#fff}
+.btn-block{width:100%}
+
+/* HERO */
+.hero{position:relative;padding:5rem 1.25rem 4rem;overflow:hidden;border-bottom:1px solid var(--border);background:radial-gradient(ellipse at top left,rgba(193,18,31,.25),transparent 60%),radial-gradient(ellipse at bottom right,rgba(193,18,31,.15),transparent 60%),linear-gradient(180deg,#141414,#181818)}
+.hero::before{content:"";position:absolute;inset:0;background-image:linear-gradient(rgba(255,255,255,.03) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,.03) 1px,transparent 1px);background-size:40px 40px;mask-image:radial-gradient(ellipse at center,black 40%,transparent 80%);pointer-events:none}
+.hero-inner{position:relative;max-width:1000px;margin:0 auto;text-align:center}
+.hero-badge{display:inline-flex;align-items:center;gap:.5rem;padding:.4rem 1rem;border-radius:999px;background:rgba(193,18,31,.12);border:1px solid var(--border-strong);font-size:.8rem;color:#ffb0b6;margin-bottom:1.5rem}
+.hero-badge .dot{width:8px;height:8px;border-radius:50%;background:var(--primary);animation:pulse 1.8s infinite}
+.hero h1{font-size:clamp(2.2rem,5vw,4rem);font-weight:800;line-height:1.1;letter-spacing:-1px;margin-bottom:1.2rem}
+.hero h1 span{color:var(--primary)}
+.hero p{color:var(--muted);font-size:clamp(1rem,1.4vw,1.15rem);max-width:700px;margin:0 auto 2rem}
+.hero-actions{display:flex;gap:.8rem;justify-content:center;flex-wrap:wrap}
+
+/* SECTIONS */
+section{padding:4rem 0}
+.section-header{display:flex;justify-content:space-between;align-items:flex-end;margin-bottom:2rem;flex-wrap:wrap;gap:1rem}
+.section-title{font-size:clamp(1.5rem,2.5vw,2rem);font-weight:700}
+.section-title small{display:block;font-size:.85rem;color:var(--primary);font-weight:600;letter-spacing:2px;text-transform:uppercase;margin-bottom:.4rem}
+.section-sub{color:var(--muted);font-size:.95rem}
+
+/* CARD */
+.card{background:linear-gradient(180deg,var(--card),#1e1e1e);border:1px solid var(--border);border-radius:var(--radius);padding:1.4rem;transition:var(--transition);box-shadow:var(--shadow)}
+.card:hover{transform:translateY(-4px);border-color:var(--border-strong);box-shadow:var(--shadow),var(--shadow-red)}
+.grid{display:grid;gap:1.2rem}
+.grid-2{grid-template-columns:repeat(auto-fit,minmax(300px,1fr))}
+.grid-3{grid-template-columns:repeat(auto-fit,minmax(260px,1fr))}
+.grid-4{grid-template-columns:repeat(auto-fit,minmax(220px,1fr))}
+
+/* ALERTS / INCIDENTS */
+.alert-card{display:flex;gap:1rem;align-items:flex-start}
+.alert-icon{width:42px;height:42px;border-radius:10px;background:rgba(193,18,31,.15);color:var(--primary);display:grid;place-items:center;font-size:1.2rem;flex-shrink:0}
+.alert-body h4{font-size:1rem;margin-bottom:.3rem}
+.alert-body p{color:var(--muted);font-size:.88rem}
+.alert-meta{font-size:.75rem;color:var(--muted);margin-top:.5rem;display:flex;gap:.8rem;flex-wrap:wrap}
+.alert-meta span::before{content:"•";margin-right:.5rem;color:var(--primary)}
+.alert-meta span:first-child::before{content:"";margin:0}
+.badge{display:inline-block;padding:.2rem .6rem;border-radius:999px;font-size:.72rem;font-weight:600;text-transform:uppercase;letter-spacing:.5px}
+.badge-danger{background:rgba(239,68,68,.15);color:#fca5a5}
+.badge-warning{background:rgba(245,158,11,.15);color:#fcd34d}
+.badge-success{background:rgba(34,197,94,.15);color:#86efac}
+.badge-info{background:rgba(59,130,246,.15);color:#93c5fd}
+.badge-muted{background:rgba(255,255,255,.08);color:var(--muted)}
+
+/* STATS */
+.stat{text-align:center;padding:1.6rem 1rem}
+.stat-value{font-size:2.5rem;font-weight:800;color:var(--primary);line-height:1;margin-bottom:.4rem}
+.stat-label{font-size:.85rem;color:var(--muted);text-transform:uppercase;letter-spacing:1px}
+
+/* EMERGENCY */
+.emergency-card{display:flex;align-items:center;gap:1rem}
+.emergency-card .icon{width:48px;height:48px;border-radius:12px;background:linear-gradient(135deg,var(--primary),var(--primary-dark));display:grid;place-items:center;font-size:1.4rem;box-shadow:0 4px 15px -3px var(--primary-glow)}
+.emergency-card h4{font-size:.95rem}
+.emergency-card p{font-family:monospace;font-size:1.1rem;color:var(--primary);font-weight:700}
+
+/* FORMS */
+.auth-wrap{min-height:calc(100vh - 200px);display:grid;place-items:center;padding:3rem 1.25rem;background:radial-gradient(ellipse at top,rgba(193,18,31,.18),transparent 60%),var(--bg)}
+.auth-card{width:100%;max-width:460px;background:var(--card);border:1px solid var(--border);border-radius:16px;padding:2.5rem;box-shadow:var(--shadow);animation:fadeIn .5s ease}
+.auth-card h2{font-size:1.6rem;margin-bottom:.4rem}
+.auth-card .sub{color:var(--muted);margin-bottom:1.8rem;font-size:.9rem}
+.form-group{margin-bottom:1.1rem;position:relative}
+.form-group label{display:block;font-size:.82rem;color:var(--muted);margin-bottom:.4rem;font-weight:500}
+.form-control{width:100%;padding:.85rem 1rem;background:#1a1a1a;border:1px solid #333;border-radius:10px;color:#fff;font-size:.95rem;font-family:inherit;transition:var(--transition)}
+.form-control:focus{outline:none;border-color:var(--primary);box-shadow:0 0 0 3px rgba(193,18,31,.15);background:#1f1f1f}
+textarea.form-control{resize:vertical;min-height:120px}
+select.form-control{appearance:none;background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='14' height='14' viewBox='0 0 24 24' fill='none' stroke='%23bdbdbd' stroke-width='2'><polyline points='6 9 12 15 18 9'/></svg>");background-repeat:no-repeat;background-position:right 1rem center;padding-right:2.5rem}
+.form-hint{font-size:.78rem;color:var(--muted);margin-top:.35rem}
+.form-error{font-size:.78rem;color:#fca5a5;margin-top:.35rem;display:none}
+.form-error.show{display:block}
+.form-row{display:grid;grid-template-columns:1fr 1fr;gap:1rem}
+.checkbox{display:inline-flex;align-items:center;gap:.5rem;font-size:.88rem;color:var(--muted);cursor:pointer}
+.checkbox input{width:16px;height:16px;accent-color:var(--primary)}
+.form-flex{display:flex;justify-content:space-between;align-items:center;margin:.5rem 0 1.4rem;font-size:.85rem}
+.form-flex a{color:var(--primary);font-weight:500;cursor:pointer}
+.form-flex a:hover{text-decoration:underline}
+.divider{text-align:center;color:var(--muted);font-size:.8rem;margin:1.4rem 0;position:relative}
+.divider::before,.divider::after{content:"";position:absolute;top:50%;width:calc(50% - 30px);height:1px;background:#333}
+.divider::before{left:0}.divider::after{right:0}
+
+/* PAGE HEADER */
+.page-header{padding:3rem 1.25rem 2rem;background:radial-gradient(ellipse at top,rgba(193,18,31,.18),transparent 65%),linear-gradient(180deg,#141414,var(--bg));border-bottom:1px solid var(--border)}
+.page-header .container{text-align:center}
+.page-header h1{font-size:clamp(1.8rem,3vw,2.5rem);margin-bottom:.6rem}
+.page-header p{color:var(--muted)}
+
+/* MAP */
+.map-layout{display:grid;grid-template-columns:260px 1fr;gap:1.2rem}
+.map-sidebar{display:flex;flex-direction:column;gap:1rem}
+.filter-list{display:flex;flex-direction:column;gap:.4rem}
+.filter-item{display:flex;align-items:center;gap:.6rem;padding:.6rem .8rem;border-radius:8px;cursor:pointer;transition:var(--transition);font-size:.9rem}
+.filter-item:hover{background:rgba(255,255,255,.04)}
+.filter-item input{accent-color:var(--primary)}
+.dot-marker{width:12px;height:12px;border-radius:50%;display:inline-block;box-shadow:0 0 8px currentColor}
+.map-canvas{position:relative;background:radial-gradient(circle at 20% 30%,rgba(193,18,31,.06),transparent 50%),linear-gradient(135deg,#1c1c1c,#202020);border:1px solid var(--border);border-radius:var(--radius);min-height:560px;overflow:hidden;background-image:linear-gradient(rgba(255,255,255,.04) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,.04) 1px,transparent 1px);background-size:50px 50px}
+.map-canvas::before{content:"CAMPUS MAP · SIM";position:absolute;top:12px;left:16px;font-size:.7rem;letter-spacing:3px;color:var(--muted)}
+.marker{position:absolute;width:22px;height:22px;border-radius:50%;border:3px solid rgba(255,255,255,.85);cursor:pointer;transform:translate(-50%,-50%);animation:ping 2s infinite;transition:transform .2s}
+.marker:hover{transform:translate(-50%,-50%) scale(1.3)}
+.marker.theft{background:#ef4444;color:#ef4444}
+.marker.assault{background:#f97316;color:#f97316}
+.marker.harassment{background:#eab308;color:#eab308}
+.marker.suspicious{background:#22c55e;color:#22c55e}
+.marker.vandalism{background:#a855f7;color:#a855f7}
+.map-legend{position:absolute;bottom:12px;right:12px;background:rgba(17,17,17,.85);border:1px solid var(--border);border-radius:10px;padding:.75rem 1rem;font-size:.8rem;backdrop-filter:blur(8px)}
+.map-legend div{display:flex;align-items:center;gap:.5rem;margin:.2rem 0}
+.info-panel{position:absolute;top:20px;right:20px;width:280px;background:rgba(20,20,20,.95);border:1px solid var(--border-strong);border-radius:12px;padding:1rem 1.2rem;backdrop-filter:blur(12px);box-shadow:var(--shadow),var(--shadow-red);transform:translateX(120%);transition:transform .35s cubic-bezier(.2,.9,.3,1.4)}
+.info-panel.show{transform:translateX(0)}
+.info-panel h4{margin-bottom:.4rem}
+.info-panel .close{position:absolute;top:8px;right:12px;color:var(--muted);font-size:1.2rem}
+.info-panel p{font-size:.85rem;color:var(--muted);margin-bottom:.3rem}
+
+/* DASHBOARD */
+.dash-hello{padding:2.5rem 0 1rem}
+.dash-hello h2{font-size:1.8rem}
+.dash-hello p{color:var(--muted)}
+.dash-grid{display:grid;grid-template-columns:2fr 1fr;gap:1.2rem;margin-top:1.5rem}
+table{width:100%;border-collapse:collapse;font-size:.9rem}
+th,td{padding:.75rem .8rem;text-align:left;border-bottom:1px solid #2a2a2a}
+th{color:var(--muted);font-weight:600;font-size:.78rem;text-transform:uppercase;letter-spacing:1px}
+tr:hover td{background:rgba(255,255,255,.02)}
+.table-wrap{overflow-x:auto}
+.timeline{list-style:none;position:relative;padding-left:1.5rem}
+.timeline::before{content:"";position:absolute;left:6px;top:6px;bottom:6px;width:2px;background:#333}
+.timeline li{position:relative;padding-bottom:1.2rem}
+.timeline li::before{content:"";position:absolute;left:-1.5rem;top:4px;width:14px;height:14px;border-radius:50%;background:var(--primary);box-shadow:0 0 12px var(--primary-glow)}
+.timeline strong{display:block;font-size:.92rem}
+.timeline span{font-size:.78rem;color:var(--muted)}
+.progress-row{margin:.9rem 0}
+.progress-row .row-top{display:flex;justify-content:space-between;font-size:.85rem;margin-bottom:.35rem}
+.progress{width:100%;height:8px;background:#2a2a2a;border-radius:999px;overflow:hidden}
+.progress>span{display:block;height:100%;background:linear-gradient(90deg,var(--primary),#ff5a6a);border-radius:inherit;transition:width 1s ease}
+
+/* PROFILE */
+.profile-grid{display:grid;grid-template-columns:320px 1fr;gap:1.2rem;margin-top:1.5rem}
+.avatar{width:110px;height:110px;border-radius:50%;background:linear-gradient(135deg,var(--primary),var(--primary-dark));display:grid;place-items:center;font-size:2.4rem;font-weight:700;color:#fff;margin:0 auto 1rem;box-shadow:0 0 25px var(--primary-glow);border:3px solid rgba(255,255,255,.1)}
+.profile-card{text-align:center}
+.profile-card h3{font-size:1.2rem}
+.profile-card .role{color:var(--primary);font-size:.85rem;margin-bottom:1rem}
+.profile-actions{display:grid;gap:.5rem;margin-top:1.2rem}
+.info-list{list-style:none}
+.info-list li{display:flex;justify-content:space-between;padding:.75rem 0;border-bottom:1px solid #2a2a2a;font-size:.9rem}
+.info-list li:last-child{border:none}
+.info-list .k{color:var(--muted)}
+
+/* UPDATES */
+.search-bar{display:flex;gap:.6rem;margin-bottom:1.5rem}
+.search-bar input{flex:1;padding:.85rem 1rem;background:var(--card);border:1px solid var(--border);border-radius:10px;color:#fff}
+.search-bar input:focus{outline:none;border-color:var(--primary)}
+.update-card h4{display:flex;align-items:center;gap:.6rem;margin-bottom:.5rem}
+.update-card .date{font-size:.8rem;color:var(--muted);margin-bottom:.5rem}
+
+/* REPORT */
+.report-grid{display:grid;grid-template-columns:1fr 340px;gap:1.5rem}
+
+/* FOOTER */
+.footer{margin-top:auto;background:#0f0f0f;border-top:1px solid var(--border);padding:3rem 1.25rem 1.5rem;color:var(--muted);font-size:.9rem}
+.footer-grid{display:grid;grid-template-columns:1.4fr 1fr 1fr 1fr;gap:2rem;max-width:1200px;margin:0 auto 2rem}
+.footer h5{color:#fff;font-size:.95rem;margin-bottom:.9rem;letter-spacing:.5px}
+.footer ul{list-style:none}
+.footer li{margin:.4rem 0}
+.footer a{cursor:pointer}
+.footer a:hover{color:var(--primary)}
+.footer-bottom{max-width:1200px;margin:0 auto;padding-top:1.5rem;border-top:1px solid #222;display:flex;justify-content:space-between;flex-wrap:wrap;gap:.5rem;font-size:.82rem}
+
+/* TOAST */
+.toast-wrap{position:fixed;top:20px;right:20px;display:flex;flex-direction:column;gap:.6rem;z-index:999}
+.toast{min-width:260px;background:var(--card);border-left:4px solid var(--primary);padding:.9rem 1rem;border-radius:8px;box-shadow:var(--shadow);animation:slideIn .35s ease;font-size:.9rem}
+.toast.success{border-color:var(--success)}
+.toast.warning{border-color:var(--warning)}
+.toast.danger{border-color:var(--danger)}
+.toast.fade-out{animation:slideOut .35s ease forwards}
+
+/* MODAL */
+.modal-backdrop{position:fixed;inset:0;background:rgba(0,0,0,.7);display:none;align-items:center;justify-content:center;z-index:1000;padding:1rem;backdrop-filter:blur(4px)}
+.modal-backdrop.show{display:flex;animation:fadeIn .2s ease}
+.modal{background:var(--card);border:1px solid var(--border-strong);border-radius:14px;padding:2rem;max-width:440px;width:100%;box-shadow:var(--shadow);animation:scaleIn .25s ease}
+.modal h3{margin-bottom:.5rem}
+.modal p{color:var(--muted);margin-bottom:1.2rem}
+
+/* BACK-TO-TOP */
+.back-top{position:fixed;bottom:20px;right:20px;width:44px;height:44px;border-radius:50%;background:var(--primary);color:#fff;display:grid;place-items:center;box-shadow:0 0 20px var(--primary-glow);opacity:0;visibility:hidden;transition:var(--transition);z-index:90}
+.back-top.show{opacity:1;visibility:visible}
+.back-top:hover{background:var(--primary-dark);transform:translateY(-3px)}
+
+/* LOADER */
+.loader{width:20px;height:20px;border:2px solid rgba(255,255,255,.3);border-top-color:#fff;border-radius:50%;animation:spin .7s linear infinite}
+
+/* REVEAL */
+.reveal{opacity:0;transform:translateY(20px);transition:opacity .7s ease,transform .7s ease}
+.reveal.visible{opacity:1;transform:translateY(0)}
+
+/* KEYFRAMES */
+@keyframes fadeIn{from{opacity:0}to{opacity:1}}
+@keyframes scaleIn{from{opacity:0;transform:scale(.95)}to{opacity:1;transform:scale(1)}}
+@keyframes slideIn{from{opacity:0;transform:translateX(30px)}to{opacity:1;transform:translateX(0)}}
+@keyframes slideOut{to{opacity:0;transform:translateX(30px)}}
+@keyframes spin{to{transform:rotate(360deg)}}
+@keyframes pulse{0%,100%{transform:scale(1);opacity:1}50%{transform:scale(1.4);opacity:.6}}
+@keyframes ping{0%{box-shadow:0 0 0 0 currentColor}70%{box-shadow:0 0 0 12px transparent}100%{box-shadow:0 0 0 0 transparent}}
+
+/* RESPONSIVE */
+@media(max-width:900px){
+  .map-layout,.dash-grid,.profile-grid,.report-grid{grid-template-columns:1fr}
+  .footer-grid{grid-template-columns:1fr 1fr}
+}
+@media(max-width:720px){
+  .hamburger{display:flex}
+  .nav-links{position:absolute;top:100%;left:0;right:0;background:rgba(17,17,17,.98);flex-direction:column;align-items:stretch;padding:1rem;border-bottom:1px solid var(--border);transform:translateY(-10px);opacity:0;pointer-events:none;transition:var(--transition)}
+  .nav-links.open{transform:translateY(0);opacity:1;pointer-events:auto}
+  .nav-links a{padding:.9rem 1rem}
+  .nav-cta{display:none}
+  .form-row{grid-template-columns:1fr}
+  .footer-grid{grid-template-columns:1fr;text-align:center}
+  .info-panel{top:auto;right:10px;left:10px;bottom:10px;width:auto}
+}
+</style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav class="navbar" aria-label="Primary">
+  <div class="nav-inner">
+    <div class="logo" data-nav="home"><span class="logo-mark">S</span>SIM<span>.</span></div>
+    <button class="hamburger" aria-label="Toggle menu"><span></span><span></span><span></span></button>
+    <ul class="nav-links">
+      <li><a data-nav="home">Home</a></li>
+      <li><a data-nav="report">Report Incident</a></li>
+      <li><a data-nav="map">Crime Map</a></li>
+      <li><a data-nav="updates">Safety Updates</a></li>
+      <li><a data-nav="dashboard">Dashboard</a></li>
+      <li><a data-nav="profile">Profile</a></li>
+    </ul>
+    <div class="nav-cta">
+      <a class="btn btn-ghost" data-nav="login">Login</a>
+      <a class="btn btn-primary" data-nav="register">Register</a>
+    </div>
+  </div>
+</nav>
+
+<!-- ============ HOME ============ -->
+<div class="page" id="page-home">
+  <header class="hero">
+    <div class="hero-inner">
+      <div class="hero-badge"><span class="dot"></span> Live campus security · Status: Operational</div>
+      <h1>Your Safety Is <span>Our Priority</span></h1>
+      <p>The Security Incident Mapping platform empowers students and residents to report incidents, monitor crime patterns, and stay informed — building a safer academic community together.</p>
+      <div class="hero-actions">
+        <a class="btn btn-primary" data-nav="report">🚨 Report Incident</a>
+        <a class="btn btn-outline" data-nav="map">🗺 View Crime Map</a>
+      </div>
+    </div>
+  </header>
+
+  <section><div class="container">
+    <div class="section-header">
+      <div>
+        <h2 class="section-title"><small>Live Feed</small>Security Alerts</h2>
+        <p class="section-sub">Real-time notifications from campus security patrols.</p>
+      </div>
+      <a class="btn btn-outline" data-nav="updates">All Updates</a>
+    </div>
+    <div class="grid grid-3">
+      <div class="card alert-card reveal"><div class="alert-icon">⚠</div><div class="alert-body"><h4>Increased Patrols Tonight</h4><p>Additional officers deployed near hostels between 10 PM and 4 AM.</p><div class="alert-meta"><span>North Campus</span><span>15 min ago</span></div></div></div>
+      <div class="card alert-card reveal"><div class="alert-icon">🚧</div><div class="alert-body"><h4>Restricted Route</h4><p>Back gate closed for safety inspection until 8 PM.</p><div class="alert-meta"><span>East Gate</span><span>1 hour ago</span></div></div></div>
+      <div class="card alert-card reveal"><div class="alert-icon">📢</div><div class="alert-body"><h4>New Emergency Hotline</h4><p>Direct SMS reporting is now available at 3-9-1-1.</p><div class="alert-meta"><span>Campus-wide</span><span>Today</span></div></div></div>
+    </div>
+  </div></section>
+
+  <section style="background:#141414;"><div class="container">
+    <div class="section-header"><div>
+      <h2 class="section-title"><small>Reported Incidents</small>Recent Activity</h2>
+      <p class="section-sub">Verified reports from the last 72 hours.</p>
+    </div></div>
+    <div class="grid grid-4">
+      <div class="card reveal"><span class="badge badge-danger">Theft</span><h4 style="margin:.7rem 0 .3rem;">Phone Stolen</h4><p style="color:var(--muted);font-size:.88rem;">Reported at Engineering Block, near lab 3.</p><div class="alert-meta"><span>Eng. Block</span><span>1h ago</span></div><div style="margin-top:.7rem;"><span class="badge badge-warning">Under Review</span></div></div>
+      <div class="card reveal"><span class="badge badge-danger">Assault</span><h4 style="margin:.7rem 0 .3rem;">Physical Altercation</h4><p style="color:var(--muted);font-size:.88rem;">Cafeteria incident escalated verbally.</p><div class="alert-meta"><span>Cafeteria</span><span>3h ago</span></div><div style="margin-top:.7rem;"><span class="badge badge-info">Investigating</span></div></div>
+      <div class="card reveal"><span class="badge badge-warning">Harassment</span><h4 style="margin:.7rem 0 .3rem;">Verbal Harassment</h4><p style="color:var(--muted);font-size:.88rem;">Two students reported the incident together.</p><div class="alert-meta"><span>Library</span><span>6h ago</span></div><div style="margin-top:.7rem;"><span class="badge badge-success">Resolved</span></div></div>
+      <div class="card reveal"><span class="badge badge-success">Suspicious</span><h4 style="margin:.7rem 0 .3rem;">Suspicious Person</h4><p style="color:var(--muted);font-size:.88rem;">Unidentified individual near hostel entrance.</p><div class="alert-meta"><span>Hostel B</span><span>Yesterday</span></div><div style="margin-top:.7rem;"><span class="badge badge-muted">Monitoring</span></div></div>
+    </div>
+  </div></section>
+
+  <section><div class="container">
+    <div class="section-header"><div><h2 class="section-title"><small>By The Numbers</small>Campus Safety Overview</h2></div></div>
+    <div class="grid grid-4">
+      <div class="card stat"><div class="stat-value" data-count="27">0</div><div class="stat-label">Reports Today</div></div>
+      <div class="card stat"><div class="stat-value" data-count="12">0</div><div class="stat-label">Active Cases</div></div>
+      <div class="card stat"><div class="stat-value" data-count="184">0</div><div class="stat-label">Resolved Cases</div></div>
+      <div class="card stat"><div class="stat-value" data-count="92">0</div><div class="stat-label">Safety Score</div></div>
+    </div>
+  </div></section>
+
+  <section style="background:#141414;"><div class="container">
+    <div class="section-header"><div>
+      <h2 class="section-title"><small>24/7 Response</small>Emergency Contacts</h2>
+      <p class="section-sub">Save these numbers. Call immediately in any dangerous situation.</p>
+    </div></div>
+    <div class="grid grid-3">
+      <div class="card emergency-card reveal"><div class="icon">🚨</div><div><h4>Campus Security</h4><p>+234 800 SIM SAFE</p></div></div>
+      <div class="card emergency-card reveal"><div class="icon">🚑</div><div><h4>Medical Emergency</h4><p>+234 800 199 911</p></div></div>
+      <div class="card emergency-card reveal"><div class="icon">🚔</div><div><h4>Local Police</h4><p>112 / 911</p></div></div>
+      <div class="card emergency-card reveal"><div class="icon">🔥</div><div><h4>Fire Service</h4><p>+234 800 FIRE 000</p></div></div>
+      <div class="card emergency-card reveal"><div class="icon">🛡</div><div><h4>Hostel Warden</h4><p>+234 800 220 505</p></div></div>
+      <div class="card emergency-card reveal"><div class="icon">📞</div><div><h4>Anonymous Tip</h4><p>+234 800 TIP LINE</p></div></div>
+    </div>
+  </div></section>
+</div>
+
+<!-- ============ LOGIN ============ -->
+<div class="page" id="page-login">
+  <main class="auth-wrap">
+    <div class="auth-card">
+      <h2>Welcome back 👋</h2>
+      <p class="sub">Sign in to access your campus security dashboard.</p>
+      <form id="loginForm" novalidate>
+        <div class="form-group"><label for="li-email">Email Address</label><input type="email" id="li-email" name="email" class="form-control" placeholder="you@university.edu" required /><div class="form-error"></div></div>
+        <div class="form-group"><label for="li-pass">Password</label><input type="password" id="li-pass" name="password" class="form-control" placeholder="••••••••" required /><div class="form-error"></div></div>
+        <div class="form-flex"><label class="checkbox"><input type="checkbox" /> Remember me</label><a>Forgot password?</a></div>
+        <button type="submit" class="btn btn-primary btn-block">Sign In</button>
+        <div class="divider">New to SIM?</div>
+        <a class="btn btn-outline btn-block" data-nav="register">Create an account</a>
+      </form>
+    </div>
+  </main>
+</div>
+
+<!-- ============ REGISTER ============ -->
+<div class="page" id="page-register">
+  <main class="auth-wrap">
+    <div class="auth-card" style="max-width:520px;">
+      <h2>Create your account</h2>
+      <p class="sub">Register with your student credentials to start reporting.</p>
+      <form id="registerForm" novalidate>
+        <div class="form-group"><label for="r-fullname">Full Name</label><input type="text" id="r-fullname" name="fullname" class="form-control" placeholder="Jane Doe" required /><div class="form-error"></div></div>
+        <div class="form-row">
+          <div class="form-group"><label for="r-sid">Student ID</label><input type="text" id="r-sid" name="studentId" class="form-control" placeholder="STU-2024-0142" required /><div class="form-error"></div></div>
+          <div class="form-group"><label for="r-phone">Phone Number</label><input type="tel" id="r-phone" name="phone" class="form-control" placeholder="+234 800 000 0000" required /><div class="form-error"></div></div>
+        </div>
+        <div class="form-group"><label for="r-email">Email Address</label><input type="email" id="r-email" name="email" class="form-control" placeholder="you@university.edu" required /><div class="form-error"></div></div>
+        <div class="form-row">
+          <div class="form-group"><label for="r-pass">Password</label><input type="password" id="r-pass" name="password" class="form-control" placeholder="Min. 6 characters" required /><div class="form-error"></div></div>
+          <div class="form-group"><label for="r-conf">Confirm Password</label><input type="password" id="r-conf" name="confirm" class="form-control" placeholder="Repeat password" required /><div class="form-error"></div></div>
+        </div>
+        <label class="checkbox" style="margin-bottom:1.2rem;"><input type="checkbox" required /> I agree to the Community Guidelines and Terms of Use.</label>
+        <button type="submit" class="btn btn-primary btn-block">Create Account</button>
+        <div class="divider">Already registered?</div>
+        <a class="btn btn-outline btn-block" data-nav="login">Sign in instead</a>
+      </form>
+    </div>
+  </main>
+</div>
+
+<!-- ============ REPORT ============ -->
+<div class="page" id="page-report">
+  <header class="page-header"><div class="container">
+    <h1>Report a Security Incident</h1>
+    <p>Every report matters. Provide as much detail as possible — your identity stays confidential.</p>
+  </div></header>
+  <main class="container" style="padding:2.5rem 1.25rem 4rem;">
+    <div class="report-grid">
+      <div class="card">
+        <form id="reportForm" novalidate>
+          <div class="form-row">
+            <div class="form-group"><label for="rp-type">Incident Type</label>
+              <select id="rp-type" name="type" class="form-control" required>
+                <option value="">Select type</option>
+                <option value="theft">Theft</option><option value="assault">Assault</option>
+                <option value="harassment">Harassment</option><option value="suspicious">Suspicious Activity</option>
+                <option value="vandalism">Vandalism</option><option value="other">Other</option>
+              </select><div class="form-error"></div></div>
+            <div class="form-group"><label for="rp-loc">Location</label><input type="text" id="rp-loc" name="location" class="form-control" placeholder="e.g. Engineering Block" required /><div class="form-error"></div></div>
+          </div>
+          <div class="form-row">
+            <div class="form-group"><label for="rp-date">Date</label><input type="date" id="rp-date" name="date" class="form-control" required /><div class="form-error"></div></div>
+            <div class="form-group"><label for="rp-time">Time</label><input type="time" id="rp-time" name="time" class="form-control" required /><div class="form-error"></div></div>
+          </div>
+          <div class="form-group"><label for="rp-desc">Description</label><textarea id="rp-desc" name="description" class="form-control" placeholder="Describe what happened, who was involved, and any identifiable details." required></textarea><div class="form-error"></div></div>
+          <div class="form-group"><label for="rp-file">Upload Evidence (optional)</label><input type="file" id="rp-file" name="evidence" class="form-control" accept="image/*,video/*" /><div class="form-hint">Photos or short videos help investigators verify the incident.</div></div>
+          <label class="checkbox" style="margin-bottom:.4rem;"><input type="checkbox" id="gpsCheck" /> Attach my current GPS location</label>
+          <div id="gpsOut" class="form-hint" style="min-height:1.2em;"></div>
+          <button type="submit" class="btn btn-primary btn-block" style="margin-top:1.2rem;">Submit Report</button>
+        </form>
+      </div>
+      <aside style="display:flex;flex-direction:column;gap:1rem;">
+        <div class="card"><h4 style="margin-bottom:.5rem;">📌 Before you report</h4><p style="color:var(--muted);font-size:.9rem;">If this is an active emergency, call Campus Security immediately at <strong style="color:var(--primary);">+234 800 SIM SAFE</strong>.</p></div>
+        <div class="card"><h4 style="margin-bottom:.5rem;">🔒 Your privacy</h4><p style="color:var(--muted);font-size:.9rem;">All reports are handled confidentially. Personal details are visible only to authorized security staff.</p></div>
+        <div class="card"><h4 style="margin-bottom:.5rem;">✅ What happens next</h4><ul style="color:var(--muted);font-size:.9rem;padding-left:1.1rem;"><li>Your report is time-stamped and logged</li><li>Security reviews within 30 minutes</li><li>You'll receive updates via email</li></ul></div>
+      </aside>
+    </div>
+  </main>
+</div>
+
+<!-- ============ MAP ============ -->
+<div class="page" id="page-map">
+  <header class="page-header"><div class="container"><h1>Campus Crime Map</h1><p>Visualize reported incidents across campus. Click any marker for details.</p></div></header>
+  <main class="container" style="padding:2rem 1.25rem 4rem;">
+    <div class="map-layout">
+      <aside class="map-sidebar">
+        <div class="card">
+          <h4 style="margin-bottom:.8rem;">Filter Incidents</h4>
+          <div class="filter-list">
+            <label class="filter-item"><input type="checkbox" value="all" checked /> <span class="dot-marker" style="background:#fff;color:#fff;"></span> All Incidents</label>
+            <label class="filter-item"><input type="checkbox" value="theft" /> <span class="dot-marker" style="background:#ef4444;color:#ef4444;"></span> Theft</label>
+            <label class="filter-item"><input type="checkbox" value="assault" /> <span class="dot-marker" style="background:#f97316;color:#f97316;"></span> Assault</label>
+            <label class="filter-item"><input type="checkbox" value="harassment" /> <span class="dot-marker" style="background:#eab308;color:#eab308;"></span> Harassment</label>
+            <label class="filter-item"><input type="checkbox" value="suspicious" /> <span class="dot-marker" style="background:#22c55e;color:#22c55e;"></span> Suspicious Activity</label>
+            <label class="filter-item"><input type="checkbox" value="vandalism" /> <span class="dot-marker" style="background:#a855f7;color:#a855f7;"></span> Vandalism</label>
+          </div>
+        </div>
+        <div class="card"><h4 style="margin-bottom:.5rem;">This Week</h4><p style="color:var(--muted);font-size:.88rem;">Incident count is down <strong style="color:var(--success);">12%</strong> compared to last week.</p></div>
+        <a class="btn btn-primary btn-block" data-nav="report">🚨 Report New Incident</a>
+      </aside>
+      <div class="map-canvas" id="mapCanvas">
+        <div class="info-panel" id="infoPanel">
+          <button class="close" aria-label="Close">×</button>
+          <span class="badge badge-danger">type</span>
+          <h4 class="title" style="margin-top:.5rem;">Incident title</h4>
+          <p class="loc">Location:</p><p class="time">Reported:</p>
+          <p class="desc" style="margin-top:.6rem;color:var(--text);"></p>
+          <a class="btn btn-outline btn-block" data-nav="report" style="margin-top:.8rem;font-size:.85rem;">Report Similar</a>
+        </div>
+        <div class="map-legend">
+          <div><span class="dot-marker" style="background:#ef4444;color:#ef4444;"></span> Theft</div>
+          <div><span class="dot-marker" style="background:#f97316;color:#f97316;"></span> Assault</div>
+          <div><span class="dot-marker" style="background:#eab308;color:#eab308;"></span> Harassment</div>
+          <div><span class="dot-marker" style="background:#22c55e;color:#22c55e;"></span> Suspicious</div>
+          <div><span class="dot-marker" style="background:#a855f7;color:#a855f7;"></span> Vandalism</div>
+        </div>
+      </div>
+    </div>
+  </main>
+</div>
+
+<!-- ============ DASHBOARD ============ -->
+<div class="page" id="page-dashboard">
+  <main class="container">
+    <div class="dash-hello">
+      <h2>Welcome back, <span style="color:var(--primary);">Jane</span> 👋</h2>
+      <p>Here's an overview of your reports and campus activity.</p>
+      <div style="display:flex;gap:.6rem;margin-top:1rem;flex-wrap:wrap;">
+        <a class="btn btn-primary" data-nav="report">🚨 New Report</a>
+        <a class="btn btn-outline" data-nav="map">🗺 Crime Map</a>
+        <a class="btn btn-outline" href="#emergency">📞 Emergency Contacts</a>
+      </div>
+    </div>
+    <div class="grid grid-4">
+      <div class="card stat"><div class="stat-value" data-count="14">0</div><div class="stat-label">Total Reports</div></div>
+      <div class="card stat"><div class="stat-value" data-count="4">0</div><div class="stat-label">Pending</div></div>
+      <div class="card stat"><div class="stat-value" data-count="9">0</div><div class="stat-label">Resolved</div></div>
+      <div class="card stat"><div class="stat-value" data-count="1">0</div><div class="stat-label">Rejected</div></div>
+    </div>
+    <div class="dash-grid">
+      <div class="card">
+        <div class="section-header" style="margin-bottom:1rem;"><h3 class="section-title" style="font-size:1.15rem;">Recent Reports</h3><a class="btn btn-ghost" style="font-size:.85rem;">View all →</a></div>
+        <div class="table-wrap"><table>
+          <thead><tr><th>ID</th><th>Type</th><th>Location</th><th>Date</th><th>Status</th></tr></thead>
+          <tbody>
+            <tr><td>#0142</td><td>Theft</td><td>Eng. Block</td><td>Nov 12</td><td><span class="badge badge-warning">Pending</span></td></tr>
+            <tr><td>#0138</td><td>Harassment</td><td>Library</td><td>Nov 10</td><td><span class="badge badge-success">Resolved</span></td></tr>
+            <tr><td>#0131</td><td>Suspicious</td><td>Hostel B</td><td>Nov 08</td><td><span class="badge badge-info">Investigating</span></td></tr>
+            <tr><td>#0127</td><td>Vandalism</td><td>Science Fac.</td><td>Nov 05</td><td><span class="badge badge-success">Resolved</span></td></tr>
+            <tr><td>#0122</td><td>Assault</td><td>Cafeteria</td><td>Nov 02</td><td><span class="badge badge-danger">Rejected</span></td></tr>
+          </tbody>
+        </table></div>
+        <h3 class="section-title" style="font-size:1.15rem;margin:1.5rem 0 .8rem;">Incident Breakdown</h3>
+        <div class="progress-row"><div class="row-top"><span>Theft</span><span>42%</span></div><div class="progress"><span data-width="42%"></span></div></div>
+        <div class="progress-row"><div class="row-top"><span>Harassment</span><span>24%</span></div><div class="progress"><span data-width="24%"></span></div></div>
+        <div class="progress-row"><div class="row-top"><span>Suspicious Activity</span><span>18%</span></div><div class="progress"><span data-width="18%"></span></div></div>
+        <div class="progress-row"><div class="row-top"><span>Vandalism</span><span>10%</span></div><div class="progress"><span data-width="10%"></span></div></div>
+        <div class="progress-row"><div class="row-top"><span>Assault</span><span>6%</span></div><div class="progress"><span data-width="6%"></span></div></div>
+      </div>
+      <div class="card">
+        <h3 class="section-title" style="font-size:1.15rem;margin-bottom:1rem;">Recent Activity</h3>
+        <ul class="timeline">
+          <li><strong>Report #0142 submitted</strong><span>Today · 2:15 PM</span></li>
+          <li><strong>Report #0138 marked resolved</strong><span>Yesterday · 9:04 AM</span></li>
+          <li><strong>Security patrol update</strong><span>Nov 10 · 11:30 PM</span></li>
+          <li><strong>Report #0131 assigned officer</strong><span>Nov 09 · 4:22 PM</span></li>
+          <li><strong>Profile updated</strong><span>Nov 07 · 10:11 AM</span></li>
+        </ul>
+      </div>
+    </div>
+    <div id="emergency" style="margin:3rem 0;">
+      <h3 class="section-title" style="font-size:1.15rem;margin-bottom:1rem;">Emergency Contacts</h3>
+      <div class="grid grid-3">
+        <div class="card emergency-card"><div class="icon">🚨</div><div><h4>Campus Security</h4><p>+234 800 SIM SAFE</p></div></div>
+        <div class="card emergency-card"><div class="icon">🚑</div><div><h4>Medical</h4><p>+234 800 199 911</p></div></div>
+        <div class="card emergency-card"><div class="icon">🚔</div><div><h4>Local Police</h4><p>112</p></div></div>
+      </div>
+    </div>
+  </main>
+</div>
+
+<!-- ============ UPDATES ============ -->
+<div class="page" id="page-updates">
+  <header class="page-header"><div class="container"><h1>Safety Updates & Announcements</h1><p>Latest advisories from the University Security Office.</p></div></header>
+  <main class="container" style="padding:2rem 1.25rem 4rem;">
+    <div class="search-bar"><input type="text" id="updateSearch" placeholder="Search updates by topic, location, or keyword..." /><button class="btn btn-primary">Search</button></div>
+    <div class="grid grid-2">
+      <div class="card update-card reveal"><span class="badge badge-danger">Advisory</span><h4 style="margin-top:.6rem;">🌙 Avoid isolated routes after dark</h4><div class="date">Posted November 12, 2025 · Security Office</div><p style="color:var(--muted);">Students are advised to use main pedestrian walkways after 8 PM. Escort services are available on request through the security hotline.</p></div>
+      <div class="card update-card reveal"><span class="badge badge-info">Patrol Update</span><h4 style="margin-top:.6rem;">👮 Security patrol increased near hostels</h4><div class="date">Posted November 11, 2025 · Chief Warden</div><p style="color:var(--muted);">Nightly patrols around Hostel A, B, and C have been doubled for the remainder of the semester following recent incident reports.</p></div>
+      <div class="card update-card reveal"><span class="badge badge-warning">Contacts</span><h4 style="margin-top:.6rem;">📞 New emergency contact numbers</h4><div class="date">Posted November 09, 2025 · Administration</div><p style="color:var(--muted);">Save the updated 24/7 line: <strong style="color:var(--primary);">+234 800 SIM SAFE</strong>. Direct SMS reporting is now available at 3-9-1-1.</p></div>
+      <div class="card update-card reveal"><span class="badge badge-success">Event</span><h4 style="margin-top:.6rem;">🎓 Safety awareness seminar this Friday</h4><div class="date">Posted November 07, 2025 · Student Affairs</div><p style="color:var(--muted);">Join us at the Main Auditorium, 3 PM Friday, for a workshop on personal safety, digital security, and emergency response.</p></div>
+      <div class="card update-card reveal"><span class="badge badge-info">Notice</span><h4 style="margin-top:.6rem;">🚧 Back gate temporarily closed</h4><div class="date">Posted November 05, 2025 · Facilities</div><p style="color:var(--muted);">Routine safety inspection ongoing. Use the north and main entrances until further notice.</p></div>
+      <div class="card update-card reveal"><span class="badge badge-muted">Reminder</span><h4 style="margin-top:.6rem;">🎒 Report suspicious items immediately</h4><div class="date">Posted November 03, 2025 · Security Office</div><p style="color:var(--muted);">Never touch unattended bags or packages. Report to the nearest security officer or via the SIM app.</p></div>
+    </div>
+  </main>
+</div>
+
+<!-- ============ PROFILE ============ -->
+<div class="page" id="page-profile">
+  <header class="page-header"><div class="container"><h1>Your Profile</h1><p>Manage your account, activity, and preferences.</p></div></header>
+  <main class="container" style="padding:2rem 1.25rem 4rem;">
+    <div class="profile-grid">
+      <div class="card profile-card">
+        <div class="avatar">JD</div>
+        <h3>Jane Doe</h3>
+        <div class="role">Verified Student</div>
+        <ul class="info-list" style="text-align:left;">
+          <li><span class="k">Student ID</span><span>STU-2024-0142</span></li>
+          <li><span class="k">Status</span><span class="badge badge-success">Active</span></li>
+        </ul>
+        <div class="profile-actions">
+          <button class="btn btn-primary">Edit Profile</button>
+          <button class="btn btn-outline">Change Password</button>
+          <button class="btn btn-outline" id="logoutBtn">Logout</button>
+        </div>
+      </div>
+      <div style="display:flex;flex-direction:column;gap:1.2rem;">
+        <div class="card">
+          <h3 class="section-title" style="font-size:1.1rem;margin-bottom:.8rem;">Account Information</h3>
+          <ul class="info-list">
+            <li><span class="k">Full Name</span><span>Jane Doe</span></li>
+            <li><span class="k">Email</span><span id="profileEmail">jane.doe@university.edu</span></li>
+            <li><span class="k">Phone</span><span>+234 800 000 0142</span></li>
+            <li><span class="k">Department</span><span>Software Engineering</span></li>
+            <li><span class="k">Level</span><span>400 Level</span></li>
+            <li><span class="k">Member Since</span><span>Sep 2024</span></li>
+          </ul>
+        </div>
+        <div class="card">
+          <h3 class="section-title" style="font-size:1.1rem;margin-bottom:.8rem;">Activity History</h3>
+          <ul class="timeline">
+            <li><strong>Submitted report #0142</strong><span>Today · 2:15 PM</span></li>
+            <li><strong>Viewed Crime Map</strong><span>Yesterday · 6:40 PM</span></li>
+            <li><strong>Report #0138 marked resolved</strong><span>Nov 10 · 9:04 AM</span></li>
+            <li><strong>Logged in from new device</strong><span>Nov 08 · 8:22 AM</span></li>
+            <li><strong>Updated phone number</strong><span>Nov 03 · 11:11 AM</span></li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </main>
+</div>
+
+<!-- FOOTER -->
+<footer class="footer">
+  <div class="footer-grid">
+    <div>
+      <div class="logo" style="margin-bottom:.8rem;" data-nav="home"><span class="logo-mark">S</span>SIM<span>.</span></div>
+      <p>The Security Incident Mapping platform — a safer campus, powered by community reporting and real-time response.</p>
+    </div>
+    <div><h5>Emergency</h5><ul>
+      <li>Security: +234 800 SIM SAFE</li>
+      <li>Medical: +234 800 199 911</li>
+      <li>Fire: +234 800 FIRE 000</li>
+    </ul></div>
+    <div><h5>University Security Office</h5><ul>
+      <li>Admin Block, Ground Floor</li>
+      <li>Mon–Sun · 24 hours</li>
+      <li>security@university.edu</li>
+    </ul></div>
+    <div><h5>Legal</h5><ul>
+      <li><a>Privacy Policy</a></li>
+      <li><a>Terms of Use</a></li>
+      <li><a>Community Guidelines</a></li>
+    </ul></div>
+  </div>
+  <div class="footer-bottom">
+    <span>© 2025 Security Incident Mapping · University Security Department</span>
+    <span>Built for a safer campus.</span>
+  </div>
+</footer>
+
+<!-- SUCCESS MODAL -->
+<div class="modal-backdrop" id="reportSuccess">
+  <div class="modal">
+    <div style="font-size:2.5rem;text-align:center;margin-bottom:.5rem;">✅</div>
+    <h3 style="text-align:center;">Report Submitted</h3>
+    <p style="text-align:center;">Your report has been received and assigned tracking ID <strong style="color:var(--primary);">#SIM-2025-0142</strong>. Security personnel will review it shortly.</p>
+    <div style="display:flex;gap:.6rem;">
+      <button class="btn btn-outline btn-block" data-nav="dashboard" data-close-modal>View Dashboard</button>
+      <button class="btn btn-primary btn-block" data-close-modal>Done</button>
+    </div>
+  </div>
+</div>
+
+<script>
+/* ============================================
+   SIM — Vanilla JavaScript (ES6)
+   ============================================ */
+const $  = (s,c=document)=>c.querySelector(s);
+const $$ = (s,c=document)=>[...c.querySelectorAll(s)];
+
+/* ---------- Router (hash-based) ---------- */
+const PAGES = ["home","login","register","report","map","dashboard","updates","profile"];
+function showPage(name){
+  if(!PAGES.includes(name)) name = "home";
+  $$(".page").forEach(p=>p.classList.remove("active"));
+  $("#page-"+name)?.classList.add("active");
+  $$(".nav-links a").forEach(a=>a.classList.toggle("active", a.dataset.nav===name));
+  window.scrollTo({top:0,behavior:"instant" in window ? "instant" : "auto"});
+  // trigger reveal animations for newly visible content
+  requestAnimationFrame(()=>observeReveal());
+  // init map on demand
+  if(name==="map") initMap();
+  if(name==="dashboard") initProgress();
+}
+function nav(name){
+  location.hash = "#/"+name;
+}
+window.addEventListener("hashchange", ()=>{
+  const name = (location.hash.replace(/^#\//,"") || "home").split("?")[0];
+  showPage(name);
+});
+document.addEventListener("click",(e)=>{
+  const el = e.target.closest("[data-nav]");
+  if(el){ e.preventDefault(); nav(el.dataset.nav); }
+});
+
+/* ---------- Hamburger ---------- */
+document.addEventListener("click",(e)=>{
+  const burger = e.target.closest(".hamburger");
+  if(burger){ burger.classList.toggle("open"); $(".nav-links")?.classList.toggle("open"); }
+  else if(!e.target.closest(".nav-links")){
+    $(".hamburger")?.classList.remove("open");
+    $(".nav-links")?.classList.remove("open");
+  }
+});
+
+/* ---------- Toast ---------- */
+function toast(msg,type="success",dur=3500){
+  let wrap = $(".toast-wrap");
+  if(!wrap){ wrap=document.createElement("div"); wrap.className="toast-wrap"; document.body.appendChild(wrap); }
+  const t=document.createElement("div"); t.className=`toast ${type}`; t.textContent=msg; wrap.appendChild(t);
+  setTimeout(()=>{ t.classList.add("fade-out"); setTimeout(()=>t.remove(),350); },dur);
+}
+
+/* ---------- Counters ---------- */
+function animateCounter(el){
+  const target=parseInt(el.dataset.count,10)||0, dur=1500, start=performance.now();
+  const step=(now)=>{ const p=Math.min((now-start)/dur,1), eased=1-Math.pow(1-p,3);
+    el.textContent=Math.floor(eased*target).toLocaleString();
+    if(p<1) requestAnimationFrame(step);
+  };
+  requestAnimationFrame(step);
+  el.dataset.done="1";
+}
+
+/* ---------- Reveal + counters via IO ---------- */
+let io;
+function observeReveal(){
+  if(!io) io = new IntersectionObserver((entries)=>{
+    entries.forEach(en=>{
+      if(!en.isIntersecting) return;
+      en.target.classList.add("visible");
+      if(en.target.dataset.count && !en.target.dataset.done) animateCounter(en.target);
+      io.unobserve(en.target);
+    });
+  },{threshold:.15});
+  $$(".reveal:not(.visible), [data-count]:not([data-done])").forEach(el=>{
+    // only observe if in the currently-active page
+    if(el.closest(".page.active") || el.closest(".footer")) io.observe(el);
+  });
+}
+
+/* ---------- Back-to-top ---------- */
+const btnTop=document.createElement("button");
+btnTop.className="back-top"; btnTop.innerHTML="↑"; btnTop.setAttribute("aria-label","Back to top");
+document.body.appendChild(btnTop);
+window.addEventListener("scroll",()=>btnTop.classList.toggle("show",window.scrollY>400));
+btnTop.addEventListener("click",()=>window.scrollTo({top:0,behavior:"smooth"}));
+
+/* ---------- Modal ---------- */
+function openModal(id){ $("#"+id)?.classList.add("show"); }
+function closeModal(){ $(".modal-backdrop.show")?.classList.remove("show"); }
+document.addEventListener("click",(e)=>{
+  if(e.target.classList.contains("modal-backdrop")) closeModal();
+  if(e.target.closest("[data-close-modal]")) closeModal();
+});
+
+/* ---------- Form validation helpers ---------- */
+function showError(input,msg){
+  const err=input.parentElement.querySelector(".form-error");
+  if(err){ err.textContent=msg; err.classList.add("show"); }
+  input.style.borderColor="var(--danger)";
+}
+function clearError(input){
+  const err=input.parentElement.querySelector(".form-error");
+  if(err) err.classList.remove("show");
+  input.style.borderColor="";
+}
+
+/* ---------- LOGIN ---------- */
+$("#loginForm")?.addEventListener("submit",(e)=>{
+  e.preventDefault();
+  const f=e.currentTarget, email=f.email, pass=f.password;
+  let ok=true; [email,pass].forEach(clearError);
+  if(!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.value)){ showError(email,"Enter a valid email address."); ok=false; }
+  if(pass.value.length<6){ showError(pass,"Password must be at least 6 characters."); ok=false; }
+  if(!ok) return;
+  const btn=f.querySelector("button[type=submit]");
+  btn.disabled=true; btn.innerHTML='<span class="loader"></span> Signing in...';
+  setTimeout(()=>{
+    localStorage.setItem("sim_user",JSON.stringify({email:email.value,name:"Campus Resident"}));
+    toast("Welcome back — redirecting to dashboard.","success");
+    setTimeout(()=>{ nav("dashboard"); btn.disabled=false; btn.innerHTML="Sign In"; },900);
+  },1000);
+});
+
+/* ---------- REGISTER ---------- */
+$("#registerForm")?.addEventListener("submit",(e)=>{
+  e.preventDefault();
+  const form=e.currentTarget, f=form.elements; let ok=true;
+  $$(".form-control",form).forEach(clearError);
+  if(f.fullname.value.trim().length<3){ showError(f.fullname,"Enter your full name."); ok=false; }
+  if(!/^[A-Z0-9-]{4,}$/i.test(f.studentId.value.trim())){ showError(f.studentId,"Enter a valid student ID."); ok=false; }
+  if(!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(f.email.value)){ showError(f.email,"Enter a valid email."); ok=false; }
+  if(!/^\+?[\d\s-]{7,15}$/.test(f.phone.value)){ showError(f.phone,"Enter a valid phone number."); ok=false; }
+  if(f.password.value.length<6){ showError(f.password,"Password must be 6+ characters."); ok=false; }
+  if(f.password.value!==f.confirm.value){ showError(f.confirm,"Passwords do not match."); ok=false; }
+  if(!ok) return;
+  const btn=form.querySelector("button[type=submit]");
+  btn.disabled=true; btn.innerHTML='<span class="loader"></span> Creating account...';
+  setTimeout(()=>{
+    toast("Account created successfully. You can now log in.","success");
+    setTimeout(()=>{ nav("login"); btn.disabled=false; btn.innerHTML="Create Account"; },1100);
+  },1100);
+});
+
+/* ---------- REPORT ---------- */
+(function(){
+  const gps=$("#gpsCheck"), gpsOut=$("#gpsOut");
+  gps?.addEventListener("change",()=>{
+    if(gps.checked){ gpsOut.textContent="Fetching location..."; setTimeout(()=>{ gpsOut.textContent="Location captured: 6.4531° N, 3.3958° E (Main Campus)"; },800); }
+    else gpsOut.textContent="";
+  });
+  $("#reportForm")?.addEventListener("submit",(e)=>{
+    e.preventDefault();
+    const form=e.currentTarget, f=form.elements; let ok=true;
+    $$(".form-control",form).forEach(clearError);
+    if(!f.type.value){ showError(f.type,"Select an incident type."); ok=false; }
+    if(!f.location.value.trim()){ showError(f.location,"Provide a location."); ok=false; }
+    if(!f.date.value){ showError(f.date,"Select a date."); ok=false; }
+    if(!f.time.value){ showError(f.time,"Select a time."); ok=false; }
+    if(f.description.value.trim().length<15){ showError(f.description,"Description should be at least 15 characters."); ok=false; }
+    if(!ok) return;
+    const btn=form.querySelector("button[type=submit]");
+    btn.disabled=true; btn.innerHTML='<span class="loader"></span> Submitting report...';
+    setTimeout(()=>{
+      openModal("reportSuccess");
+      form.reset(); if(gpsOut) gpsOut.textContent="";
+      btn.disabled=false; btn.innerHTML="Submit Report";
+    },1200);
+  });
+})();
+
+/* ---------- MAP ---------- */
+const INCIDENTS=[
+  {type:"theft",title:"Phone Theft",loc:"Engineering Block",time:"1 hour ago",x:22,y:34,desc:"A student reported a stolen mobile phone near lab 3."},
+  {type:"assault",title:"Physical Altercation",loc:"Cafeteria",time:"3 hours ago",x:55,y:22,desc:"Verbal argument escalated to a physical incident. Under investigation."},
+  {type:"harassment",title:"Verbal Harassment",loc:"Library Entrance",time:"6 hours ago",x:71,y:44,desc:"Reported by two students walking home late."},
+  {type:"suspicious",title:"Suspicious Person",loc:"Hostel B",time:"Yesterday",x:34,y:68,desc:"Unidentified individual seen loitering near hostel entrance."},
+  {type:"vandalism",title:"Broken Window",loc:"Science Faculty",time:"2 days ago",x:62,y:74,desc:"Window damaged by unknown persons overnight."},
+  {type:"theft",title:"Bicycle Theft",loc:"Parking Lot A",time:"2 days ago",x:12,y:55,desc:"Bicycle chain cut. Security footage under review."},
+  {type:"suspicious",title:"Unattended Bag",loc:"Auditorium",time:"3 days ago",x:82,y:30,desc:"Item cleared safely by campus security."},
+  {type:"harassment",title:"Online Harassment Report",loc:"Reported Online",time:"4 days ago",x:45,y:55,desc:"Anonymous online harassment report filed."}
+];
+let mapInited=false;
+function initMap(){
+  const canvas=$("#mapCanvas"), panel=$("#infoPanel");
+  if(!canvas) return;
+  function render(filter="all"){
+    canvas.querySelectorAll(".marker").forEach(m=>m.remove());
+    INCIDENTS.filter(i=>filter==="all" || (Array.isArray(filter) && filter.includes(i.type))).forEach(i=>{
+      const m=document.createElement("button");
+      m.className=`marker ${i.type}`;
+      m.style.left=i.x+"%"; m.style.top=i.y+"%";
+      m.setAttribute("aria-label",i.title);
+      m.addEventListener("click",()=>showIncident(i));
+      canvas.appendChild(m);
+    });
+  }
+  function showIncident(i){
+    panel.querySelector(".title").textContent=i.title;
+    panel.querySelector(".loc").textContent="Location: "+i.loc;
+    panel.querySelector(".time").textContent="Reported: "+i.time;
+    panel.querySelector(".desc").textContent=i.desc;
+    const badge=panel.querySelector(".badge");
+    badge.className="badge "+(i.type==="theft"||i.type==="assault"?"badge-danger":i.type==="harassment"?"badge-warning":i.type==="vandalism"?"badge-info":"badge-success");
+    badge.textContent=i.type;
+    panel.classList.add("show");
+  }
+  if(!mapInited){
+    panel?.querySelector(".close")?.addEventListener("click",()=>panel.classList.remove("show"));
+    $$(".filter-item input").forEach(cb=>{
+      cb.addEventListener("change",()=>{
+        const active=$$(".filter-item input:checked").map(x=>x.value);
+        render(active.includes("all")||active.length===0 ? "all" : active);
+      });
+    });
+    mapInited=true;
+  }
+  render("all");
+}
+
+/* ---------- UPDATES SEARCH ---------- */
+$("#updateSearch")?.addEventListener("input",(e)=>{
+  const q=e.target.value.toLowerCase();
+  $$(".update-card").forEach(c=>{ c.style.display = c.textContent.toLowerCase().includes(q) ? "" : "none"; });
+});
+
+/* ---------- LOGOUT ---------- */
+$("#logoutBtn")?.addEventListener("click",()=>{
+  localStorage.removeItem("sim_user");
+  toast("You have been logged out.","warning");
+  setTimeout(()=>nav("home"),900);
+});
+// Populate profile email if stored
+(function(){
+  const raw=localStorage.getItem("sim_user");
+  if(raw && $("#profileEmail")){ try{ $("#profileEmail").textContent=JSON.parse(raw).email||"student@campus.edu"; }catch{} }
+})();
+
+/* ---------- DASHBOARD PROGRESS ---------- */
+let progressInited=false;
+function initProgress(){
+  if(progressInited) return;
+  const bars=$$(".progress > span");
+  if(!bars.length) return;
+  const obs=new IntersectionObserver((entries)=>{
+    entries.forEach(e=>{ if(e.isIntersecting){ e.target.style.width=e.target.dataset.width; obs.unobserve(e.target); } });
+  },{threshold:.4});
+  bars.forEach(b=>{ b.style.width="0%"; obs.observe(b); });
+  progressInited=true;
+}
+
+/* ---------- BOOT ---------- */
+(function boot(){
+  const name=(location.hash.replace(/^#\//,"")||"home").split("?")[0];
+  showPage(name);
+  observeReveal();
+})();
+</script>
+</body>
+</html>
+
